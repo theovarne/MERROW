@@ -1,0 +1,40 @@
+.merrow-patrol {
+  position: relative;
+  clear: both;
+  width: 100%;
+  height: 148px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: transparent;
+  pointer-events: none;
+  contain: layout paint;
+}
+.merrow-patrol .patrol-cat {
+  position: absolute;
+  left: 0;
+  bottom: 4px;
+  width: 128px;
+  height: 128px;
+  max-width: none;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: auto;
+  cursor: crosshair;
+  user-select: none;
+  transition: none;
+}
+.merrow-patrol .patrol-cat[hidden] { display: none; }
+.merrow-patrol .patrol-note {
+  position: absolute;
+  bottom: 134px;
+  color: #a4ca92;
+  font: 10px tamzen, monospace;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.merrow-patrol .patrol-note[hidden] { display: none; }
+@media (max-width: 600px) {
+  .merrow-patrol { height: 124px; }
+  .merrow-patrol .patrol-cat { width: 104px; height: 104px; }
+  .merrow-patrol .patrol-note { bottom: 110px; }
+}

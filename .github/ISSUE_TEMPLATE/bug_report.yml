@@ -1,0 +1,24 @@
+name: Bug report
+description: Report a reproducible non-sensitive defect
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include private keys, seed phrases, tokens, RPC credentials, or private transaction data. Use private vulnerability reporting for sensitive security issues when enabled."
+  - type: input
+    id: revision
+    attributes:
+      label: Commit or deployed URL
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected versus observed behavior
+    validations:
+      required: true

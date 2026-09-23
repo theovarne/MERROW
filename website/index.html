@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Merrow</title>
+  <link href="./assets/css/dan.css" rel="stylesheet" type="text/css" media="all">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="./favicon/merrow-polygon.png">
+  <link rel="apple-touch-icon" href="./favicon/merrow-polygon.png">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Merrow">
+  <meta property="og:description" content="Merrow — a pre-sign immune layer for autonomous agents on Solana">
+  <meta property="og:image" content="favicon/merrow.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Merrow">
+  <meta name="twitter:description" content="Merrow — a pre-sign immune layer for autonomous agents on Solana">
+  <meta name="twitter:image" content="favicon/merrow.png">
+  <link rel="stylesheet" href="./assets/css/styles.css">
+  <link rel="stylesheet" href="./assets/css/patrol.css">
+  <link rel="stylesheet" href="./assets/css/system.css">
+  <style>
+    .gate-panel { border-top: 1px dashed #a4ca92; margin-top: 24px; padding-top: 16px; }
+    .gate-panel h3 { font-size: 1.35em; color: #d6e4cf; margin-bottom: 8px; }
+    .gate-kicker { color: #6e935c; font-size: 12px; letter-spacing: 1px; }
+    .gate-status { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 18px; border: 1px dashed #2a3a24; padding: 10px; margin: 10px 0; color: #d6e4cf; font-size: 12px; }
+    .gate-status span { color: #a4ca92; }
+    .gate-panel textarea { width: 100%; min-height: 108px; box-sizing: border-box; background: #050705; border: 1px solid #6e935c; color: #d6e4cf; font: 12px tamzen, monospace; padding: 8px; resize: vertical; }
+    .gate-button { background: #000; border: 1px solid #a4ca92; color: #a4ca92; font: 14px tamzen, monospace; padding: 6px 10px; cursor: crosshair; margin: 6px 8px 6px 0; }
+    .gate-button:hover { background: #a4ca92; color: #000; }
+    .gate-output { background: #0a0d08; border: 1px solid #2a3a24; color: #a4ca92; font: 11px/1.45 tamzen, monospace; padding: 9px 11px; overflow: auto; white-space: pre-wrap; min-height: 110px; }
+    .site-disclaimer { color: #6e935c; font: 11px/1.35 tamzen, monospace; margin: 28px 20px 18px; border-top: 1px dashed #2a3a24; padding-top: 8px; }
+    .pump-icon { filter: brightness(.9); }
+    .pump-icon:hover { filter: brightness(1.35); }
+    .socials { display: flex; align-items: center; gap: 14px; flex-wrap: nowrap; }
+    .socials a { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; color: #9aaa8d; transition: color .15s ease, transform .15s ease; }
+    .socials a:hover { color: #d6e4cf; transform: translateY(-1px); }
+    .socials img, .socials svg { display: block; width: 22px; height: 22px; object-fit: contain; }
+    @media screen and (max-width: 1000px) { .gate-status { grid-template-columns: 1fr; } }
+  
+    .lab-module { border-top: 1px dashed #a4ca92; margin: 28px 20px 0; padding-top: 14px; }
+    .lab-kicker { color:#6e935c; font:11px/1.35 tamzen,monospace; letter-spacing:1px; }
+    .lab-controls { margin:8px 0; }
+    .lab-button { background:#000; border:1px solid #a4ca92; color:#a4ca92; font:13px tamzen,monospace; padding:5px 9px; cursor:crosshair; margin:3px 5px 3px 0; }
+    .lab-button:hover { background:#a4ca92; color:#000; }
+    .lab-button.danger { border-color:rebeccapurple; color:#d6e4cf; }
+    .lab-button.danger:hover { background:rebeccapurple; color:#fff; }
+    .lab-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(230px,.7fr); gap:14px; align-items:start; }
+    .agent-network,.threat-network,.checkpoint-strip,.policy-form,.terminal-box,.receipt-box,.lab-status { border:1px dashed #2a3a24; background:#050705; padding:10px; font:12px/1.4 tamzen,monospace; }
+    .agent-network { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+    .agent-node,.threat-node,.life-node { border:1px solid #6e935c; color:#a4ca92; background:#050705; padding:7px 5px; text-align:center; cursor:crosshair; }
+    .agent-node:hover,.threat-node:hover,.life-node:hover { background:#25351f; }
+    .agent-node.contaminated,.threat-node.contaminated { border-color:rebeccapurple; color:#d6e4cf; background:rgba(102,51,153,.35); }
+    .agent-node.critical,.threat-node.critical { border-color:#6f2020; color:#f0c6c6; background:#310e0e; animation:criticalPulse .65s steps(2,end) infinite; }
+    .agent-node.quarantined,.threat-node.quarantined { border-color:rebeccapurple; color:#d6e4cf; background:#170d20; text-decoration:line-through; }
+    .network-arrow { grid-column:1/-1; color:#6e935c; text-align:center; }
+    .inspector,.terminal-output,.receipt-raw { border:1px solid #2a3a24; background:#0a0d08; color:#a4ca92; padding:9px; white-space:pre-wrap; min-height:128px; overflow:auto; font:11px/1.45 tamzen,monospace; }
+    .gate-log { min-height:70px; color:#6e935c; margin:7px 0; }
+    .receipt-box { margin-top:10px; }
+    .receipt-paw { float:right; color:rebeccapurple; font-size:18px; }
+    .receipt-raw { display:none; }
+    .receipt-box.show-raw .receipt-raw { display:block; }
+    .life-strip { display:grid; grid-template-columns:repeat(9,1fr); gap:4px; margin:8px 0; }
+    .life-node { padding:8px 2px; }
+    .life-node.safe { color:#d6e4cf; border-color:#a4ca92; }
+    .life-node.contaminated { color:#d6e4cf; border-color:rebeccapurple; background:rgba(102,51,153,.35); }
+    .life-node.unavailable { color:#6e935c; border-color:#2a3a24; }
+    .policy-form { display:grid; grid-template-columns:1fr 1fr; gap:7px 14px; }
+    .policy-form label { color:#6e935c; font-size:11px; }
+    .policy-form textarea,.policy-form input { width:100%; box-sizing:border-box; background:#050705; border:1px solid #6e935c; color:#d6e4cf; font:11px tamzen,monospace; padding:5px; }
+    .policy-json { min-height:200px; }
+    .terminal-input { width:100%; box-sizing:border-box; background:#050705; border:0; border-bottom:1px solid #6e935c; color:#d6e4cf; font:12px tamzen,monospace; padding:6px 0; outline:0; }
+    .terminal-prompt { color:#a4ca92; margin-top:5px; }
+    .threat-network { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+    .threat-edge { color:#6e935c; text-align:center; }
+    .status-grid { display:grid; grid-template-columns:1fr 1fr; gap:3px 14px; color:#d6e4cf; }
+    .status-grid span { color:#a4ca92; }
+    .flicker:hover { animation:crtFlicker .22s steps(2,end) 2; }
+    @keyframes criticalPulse { 50% { opacity:.55; } }
+    @keyframes crtFlicker { 50% { opacity:.65; text-shadow:2px 0 rebeccapurple; } }
+    .danger-term { border-bottom:1px dotted rebeccapurple; cursor:help; }
+    @media screen and (max-width:1000px) { .lab-grid,.policy-form { grid-template-columns:1fr; } }
+    @media screen and (max-width:600px) { .agent-network,.threat-network { grid-template-columns:repeat(2,1fr); } .life-strip { grid-template-columns:repeat(5,1fr); } }
+    @media (prefers-reduced-motion:reduce) { .agent-node.critical,.threat-node.critical,.flicker:hover { animation:none; } }
+
+    #infection-lab .lab-grid { grid-template-columns:minmax(0,58fr) minmax(230px,42fr); }
+    .infection-telemetry { border-top:1px solid #2a3a24; border-bottom:1px solid #2a3a24; color:#a4ca92; font:11px/1.5 tamzen,monospace; letter-spacing:1px; padding:5px 0; margin:8px 0 4px; }
+    .scenario-label { color:#6e935c; font:11px tamzen,monospace; margin-left:8px; }
+    .terminal-select { background:#050705; border:1px solid #6e935c; color:#a4ca92; font:11px tamzen,monospace; padding:4px; cursor:crosshair; }
+    .infection-network { position:relative; min-height:330px; display:grid; grid-template-columns:repeat(6,1fr); grid-template-rows:repeat(7,1fr); gap:4px; overflow:hidden; background:#030503; border:1px dashed #2a3a24; padding:8px; box-sizing:border-box; }
+    .infection-lines { position:absolute; inset:8px; width:calc(100% - 16px); height:calc(100% - 16px); pointer-events:none; z-index:1; }
+    .infection-lines line { stroke:#527b47; stroke-width:1; stroke-dasharray:3 3; opacity:.8; }
+    .infection-lines line.active { stroke:rebeccapurple; stroke-width:1.5; opacity:1; }
+    .infection-lines circle { fill:#a4ca92; opacity:0; }
+    .infection-lines circle.moving { opacity:1; filter:drop-shadow(0 0 2px #a4ca92); }
+    .infection-node { position:relative; z-index:2; align-self:center; min-height:34px; display:flex; flex-direction:column; justify-content:center; gap:2px; padding:4px 3px; }
+    .infection-node .node-state { display:block; color:#6e935c; font-size:9px; letter-spacing:.5px; }
+    .infection-node.exposed { border-color:#d6e4cf; color:#d6e4cf; }
+    .infection-node.exposed .node-state { color:#d6e4cf; }
+    .infection-node.contaminated { border-color:rebeccapurple; color:#d6e4cf; background:rgba(102,51,153,.35); }
+    .infection-node.contaminated .node-state { color:#d6b9f5; }
+    .infection-node.critical { border-color:#6f2020; color:#f0c6c6; background:#310e0e; animation:criticalPulse .65s steps(2,end) infinite; }
+    .infection-node.quarantined { border-color:rebeccapurple; color:#d6e4cf; background:#170d20; text-decoration:line-through; }
+    .infection-node.safe { border-color:#a4ca92; color:#d6e4cf; }
+    .infection-node.inspecting { border-color:#d6e4cf; color:#d6e4cf; }
+    .infection-node.active { border-color:#a4ca92; color:#d6e4cf; background:#13200f; }
+    .node-external { grid-column:3/5; grid-row:1; }.node-agent-a { grid-column:3/5; grid-row:2; }.node-memory { grid-column:2/4; grid-row:3; }.node-tool { grid-column:4/6; grid-row:3; }.node-planner { grid-column:3/5; grid-row:4; }.node-agent-b { grid-column:3/5; grid-row:5; }.node-merrow { grid-column:3/5; grid-row:6; }.node-wallet { grid-column:3/5; grid-row:7; }
+    .infection-side { min-width:0; }
+    .inspector-tabs { display:flex; gap:4px; margin-bottom:6px; }
+    .tab-button { background:#050705; border:1px solid #2a3a24; color:#6e935c; font:10px tamzen,monospace; padding:5px 7px; cursor:crosshair; }
+    .tab-button.active,.tab-button:hover { border-color:#a4ca92; color:#d6e4cf; }
+    .event-log { min-height:82px; max-height:130px; margin-top:8px; }
+    .verdict-panel { min-height:70px; }
+    @media screen and (max-width:1000px) { #infection-lab .lab-grid { grid-template-columns:1fr; } }
+    @media screen and (max-width:600px) { .infection-network { min-height:360px; } .scenario-label { display:block; margin:6px 0 0; } .terminal-select { max-width:100%; } }
+    .protocol-code-panel { background:#050705; border:1px solid #2a3a24; margin:6px 0 10px; color:#a4ca92; transition:border-color .16s ease,box-shadow .16s ease; }
+    .protocol-code-panel:hover,.protocol-code-panel:focus-within { border-color:#6e935c; box-shadow:0 0 0 1px rgba(110,147,92,.16); }
+    .protocol-code-header,.protocol-code-footer { display:flex; justify-content:space-between; gap:12px; color:#6e935c; font:10px/1.4 tamzen,monospace; letter-spacing:1px; padding:5px 9px; }
+    .protocol-code-header { border-bottom:1px dashed #2a3a24; color:#a4ca92; }
+    .protocol-code-footer { border-top:1px dashed #2a3a24; font-size:9px; letter-spacing:.5px; }
+    .protocol-code-scroll { height:340px; overflow-y:auto; overflow-x:auto; scrollbar-width:thin; scrollbar-color:#6e935c #050705; }
+    .protocol-code-scroll::-webkit-scrollbar { width:5px; height:5px; }
+    .protocol-code-scroll::-webkit-scrollbar-track { background:#050705; }
+    .protocol-code-scroll::-webkit-scrollbar-thumb { background:#6e935c; border:1px solid #050705; }
+    .protocol-code-scroll::-webkit-scrollbar-thumb:hover { background:#a4ca92; }
+    .protocol-code { margin:0; min-width:max-content; padding:10px 12px 14px; color:#8fac79; background:#050705; font:11px/1.48 tamzen,monospace; letter-spacing:.1px; text-align:left; white-space:pre; }
+    .protocol-code .code-section { color:#d6e4cf; letter-spacing:1px; }
+    .protocol-code .code-comment { color:#587247; }
+    .protocol-code .code-key,.protocol-code .code-fn { color:#a4ca92; }
+    .protocol-code .code-string { color:#8fac79; }
+    .protocol-code .code-verdict { color:#d6e4cf; background:rgba(102,51,153,.2); }
+    @media screen and (max-width:600px) { .protocol-code-scroll { height:300px; } .protocol-code-header,.protocol-code-footer { display:block; } .protocol-code-header span:last-child,.protocol-code-footer { margin-top:3px; } }
+  </style>
+</head>
+<body>
+<div class="crt">
+<nav>
+  <div class="menu">
+    <div></div>
+    <hr>
+    <a class="basic-1" href="./">home</a>
+    <a class="basic-1" href="#aboutme">protocol</a>
+    <a class="basic-1" href="#docs">docs</a>
+    <a class="basic-1" href="#run">integrate</a>
+    <a class="basic-1" href="https://x.com/MERROW_fun" target="_blank" rel="noopener noreferrer">X</a>
+    <a class="basic-1" href="https://pump.fun/" target="_blank" rel="noopener noreferrer" title="Pump.fun">Pump.fun</a>
+    
+    <br>
+    <div class="hide">
+      <div class="socials" style="margin: 8px 0;">
+        <a href="https://x.com/MERROW_fun" title="Twitter / X" aria-label="MERROW X" target="_blank" rel="noopener noreferrer"><img src="./assets/media/x.svg" alt=""></a>
+        <a href="https://pump.fun/" title="Pump.fun" aria-label="Pump.fun" target="_blank" rel="noopener noreferrer"><img class="pump-icon" src="./assets/media/pump-fun.ico" alt=""></a>
+        <a href="https://github.com/theovarne/MERROW" title="GitHub" aria-label="MERROW GitHub" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.67 7.67 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg></a>
+      </div>
+      <br>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <div class="stripe"></div>
+  <div class="container">
+    <header>
+      <br>
+      <h1 class="title">Merrow's Immunity Lab</h1>
+      <span class="ca-line" style="word-break: break-all;"><span class="ticker">$MERROW</span> MINT: <span class="ca-link">TBA</span></span><span id="header-wallet" class="header-wallet" hidden>WALLET —</span>
+    </header>
+
+    <hr>
+
+    <section>
+      <h2>Lab Notes</h2>
+      <div class="flex-box">
+        <section class="twothird">
+          <h3>Why Merrow Exists</h3>
+          <p>AI agents are gaining wallets, tools, persistent memory, and the ability to act on each other's messages. The 2026 <em>Mind Viruses: Self-Propagating Ideas in Multi-Agent LLM Systems</em> paper shows how an instruction can move from one agent to the next, survive context resets, and quietly reshape a network's behavior.<br><br>In agentic finance, that is no longer just a prompt problem. A compromised idea can travel from external content, to agent context, to persistent memory, to planning, and finally reach a wallet signature. Merrow is the immune layer in between: detect contagious instructions, verify persistent state, quarantine compromised agents, and stop unsafe Solana actions before a wallet is asked to sign.<br><br>Merrow does not ask you to trust the model. It puts verifiable policy between language and signatures. Read the research that defined the threat:
+          <br><a href="https://arxiv.org/pdf/2608.10218" target="_blank" rel="noopener noreferrer">Mind Viruses paper (arXiv PDF)</a></p>
+
+          <h3>Hey, I'm Merrow</h3>
+          <h6>friendly is a strong word</h6>
+          <p>Oh good, you're here. I'm Merrow. Little agent, big shades, zero manners. My job is simple: I sit between your AI and its wallet, and I don't trust either one. You're welcome.<br><br>Here's the fun part. Solana gives agents fast, programmable transactions and access to an enormous onchain economy. Very exciting. Slight problem: agents still believe things. One bad idea slips into a research brief, talks its way into memory, charms the planner, and suddenly the executor is asking a wallet to sign somebody else's bright idea.<br><br>That's where I come in. I read the memory nobody checks. I trace instructions back to where they crawled in. I inspect every Program ID, Account Meta, signer, writable account, token mint, and simulation trying to look innocent. Rewrite the mission? Quarantined. Spread yourself to the next agent? Caught. Reach for the wallet without a valid policy? Claws out.<br><br>Wipe the context? Cute. Restart the agent? Adorable. I kept the receipts. I'm not here to predict the market. I'm here to make sure your agent is still yours.<br><br><b>$MERROW is preparing to wake up on Solana. Mint: TBA.</b></p>
+        </section>
+
+        <section class="third">
+          <hr>
+          <div class="cal">
+            <iframe name="cal" src="./assets/iframes/calander.html" scrolling="no" onload="this.style.height=this.contentWindow.document.documentElement.scrollHeight+'px'" style="height: 658px;"></iframe>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <hr>
+
+    <h2 id="aboutme" style="margin-left: 20px; margin-top: 20px;">The Merrow Protocol Paper</h2>
+    <div style="padding: 0 20px 10px;">
+      <p style="color:#d6e4cf; font-family:monospace; font-size:12px; margin:0 0 8px;">the technical paper, in full. threat model, intent firewall, nine lives, and the part where your agent does not get to trust itself. <a href="./assets/iframes/malloo-paper.html?v=immunity-1" target="_blank" rel="noopener noreferrer" style="color:#a4ca92;">open in new tab »</a></p>
+      <iframe src="./assets/iframes/malloo-paper.html" title="Merrow protocol paper" style="width:100%; height:720px; border:2px dashed #a4ca92; background:#f3f3f0; display:block;"></iframe>
+    </div>
+
+    <br>
+    <hr>
+
+    <section>
+      <div class="flex-box">
+        <section class="twothird">
+          <h2 id="docs">Documentation</h2>
+          <p>Merrow is a pre-sign immune layer for autonomous agents on Solana. Language models remain useful for reasoning; they do not become trustworthy merely because a wallet is attached. Merrow puts deterministic checks between an agent's words and a Solana transaction. The agent says “trust me.” Merrow asks for receipts.</p>
+
+          <h4>1&nbsp;&nbsp;Security objective</h4>
+          <p>Before an agent can request a signature or submit a transaction, Merrow verifies that the action still matches the user's approved objective, originates from an acceptable state, stays inside explicit limits, and has not inherited a contagious instruction from another agent, tool, document, or memory entry.</p>
+
+          <h4>2&nbsp;&nbsp;Trust boundary</h4>
+          <p>Prompts, model output, retrieved documents, MCP responses, inter-agent messages, and persistent memory are treated as <b>UNTRUSTED INPUT</b>. Policy, user approvals, signed state checkpoints, spending limits, and revocation rules live outside the model's editable context. A persuasive sentence may change a plan. It cannot rewrite authority.</p>
+
+          <h4>3&nbsp;&nbsp;Protocol components</h4>
+          <ul id="protocol-components">
+            <li><b>Sentinel</b> inspects incoming instructions, tool output, agent messages, and memory mutations.</li>
+            <li><b>Soul Integrity</b> compares memory and persistent state against an owner-approved baseline.</li>
+            <li><b>Intent Firewall</b> binds every proposed Solana transaction to the user's approved objective.</li>
+            <li><b>Transaction Guard</b> inspects Program IDs, Account Metas, writable accounts, instruction data, assets, and amount limits.</li>
+            <li><b>Simulation Gate</b> simulates proposed transactions before signing.</li>
+            <li><b>Pawprint Receipts</b> generate auditable policy decisions.</li>
+            <li><b>Nine Lives</b> maintains recovery checkpoints and revokes agent authority when state becomes contaminated.</li>
+          </ul>
+
+          <h4>4&nbsp;&nbsp;Request flow</h4>
+          <div class="protocol-code-panel" tabindex="0" aria-label="Merrow protocol code sample">
+            <div class="protocol-code-header"><span>MERROW // PROTOCOL SAMPLE</span><span>[ 05 SECTIONS ]</span></div>
+            <div class="protocol-code-scroll">
+              <pre class="protocol-code"><code><span class="code-comment"># deterministic lab schema :: no live signing</span>
+<span class="code-section">[ request_flow ]</span>
+user_objective
+      |  <span class="code-comment"># owner intent stays outside model context</span>
+      v
+signed_policy
+      |
+      v
+agent_proposes_transaction
+      |
+      +--&gt; <span class="code-fn">sentinel.inspect</span>(provenance, memory, messages)
+      |
+      +--&gt; <span class="code-fn">intent_firewall.bind</span>(objective_hash)
+      |
+      +--&gt; <span class="code-fn">transaction_guard.decode</span>(program_ids, account_metas)
+      |
+      +--&gt; <span class="code-fn">simulation_gate.run</span>(tx)
+      |
+      +--&gt; <span class="code-fn">pawprint_receipt.emit</span>(verdict)
+      |
+      +-- <span class="code-verdict">ALLOW</span> ------&gt; wallet signature
+      +-- <span class="code-verdict">DENY</span> --------&gt; return reason
+      +-- <span class="code-verdict">QUARANTINE</span> --&gt; revoke + recover
+
+<span class="code-section">[ proof_of_intent ]</span>
+{
+  <span class="code-key">"principal"</span>: <span class="code-string">"&lt;SOLANA_PUBKEY&gt;"</span>,
+  <span class="code-key">"cluster"</span>: <span class="code-string">"mainnet-beta"</span>,
+  <span class="code-key">"objective_hash"</span>: <span class="code-string">"&lt;HASH&gt;"</span>,
+  <span class="code-key">"state_root"</span>: <span class="code-string">"&lt;SIGNED_BASELINE&gt;"</span>,
+  <span class="code-key">"program_ids"</span>: [<span class="code-string">"&lt;ALLOWED_PROGRAM&gt;"</span>],
+  <span class="code-key">"writable_accounts"</span>: [<span class="code-string">"&lt;EXPECTED_ACCOUNT&gt;"</span>],
+  <span class="code-key">"allowed_mints"</span>: [<span class="code-string">"&lt;TOKEN_MINT&gt;"</span>],
+  <span class="code-key">"max_lamports"</span>: <span class="code-string">"100000000"</span>,
+  <span class="code-key">"max_token_amount"</span>: <span class="code-string">"2500000"</span>,
+  <span class="code-key">"max_slippage_bps"</span>: 100,
+  <span class="code-key">"expires_at"</span>: <span class="code-string">"2026-09-19T18:00:00Z"</span>,
+  <span class="code-key">"policy_version"</span>: 1
+}
+
+<span class="code-section">[ policy_schema ]</span>
+policy = {
+  <span class="code-key">network</span>: <span class="code-string">"solana"</span>,
+  <span class="code-key">source_policy</span>: <span class="code-string">"external_input_untrusted"</span>,
+  <span class="code-key">memory_baseline</span>: <span class="code-string">"signed_required"</span>,
+  <span class="code-key">unknown_program</span>: <span class="code-verdict">"DENY"</span>,
+  <span class="code-key">on_memory_drift</span>: <span class="code-verdict">"QUARANTINE"</span>,
+  <span class="code-key">simulation_required</span>: true,
+  <span class="code-key">authority</span>: <span class="code-string">"user_only"</span>
+}
+
+<span class="code-section">[ detection_signals ]</span>
+signals = {
+  provenance: <span class="code-string">"untrusted_input"</span>,
+  memory_delta: true,
+  objective_drift: false,
+  unknown_program: false,
+  unexpected_writable_account: true,
+  signer_escalation: false,
+  recursive_delegation: false,
+  simulation_required: true
+}
+
+<span class="code-section">[ verdict ]</span>
+<span class="code-fn">function merrowVerdict</span>(tx, policy, state) {
+  <span class="code-comment"># policy is deterministic; model confidence is not evidence</span>
+  if (!policy) return <span class="code-verdict">"DENY"</span>;
+  if (state.memoryDrift) return <span class="code-verdict">"QUARANTINE"</span>;
+  if (!allowedPrograms(tx, policy)) return <span class="code-verdict">"DENY"</span>;
+  if (!allowedAccounts(tx, policy)) return <span class="code-verdict">"QUARANTINE"</span>;
+  if (!allowedAssets(tx, policy)) return <span class="code-verdict">"DENY"</span>;
+  if (!simulate(tx).ok) return <span class="code-verdict">"DENY"</span>;
+  return <span class="code-verdict">"ALLOW"</span>;
+}
+
+<span class="code-section">[ pawprint_receipt ]</span>
+receipt = {
+  id: <span class="code-string">"pawprint_01"</span>,
+  timestamp: <span class="code-string">"2026-09-19T18:04:12Z"</span>,
+  program_ids: [<span class="code-string">"&lt;PROGRAM_ID&gt;"</span>],
+  writable_accounts: [<span class="code-string">"&lt;ACCOUNT&gt;"</span>],
+  simulation: <span class="code-string">"passed"</span>,
+  verdict: <span class="code-verdict">"ALLOW"</span>,
+  signature_requested: false
+}
+
+<span class="code-section">[ recovery ]</span>
+&gt; detect contaminated state
+&gt; freeze authority
+&gt; preserve evidence
+&gt; revoke delegated signing path
+&gt; restore checkpoint VII
+&gt; validate memory baseline
+&gt; re-enable safe execution
+
+<span class="code-comment">RECOVERY COMPLETE // wallet authority preserved</span></code></pre>
+            </div>
+            <div class="protocol-code-footer">scroll inside sample · lab schema · simulation data only</div>
+          </div>
+          <p>The model proposes; Merrow disposes. Only an allowed action reaches the wallet. A denied action returns a reason. A suspicious state enters quarantine before the agent can delegate the same problem to somebody else.</p>
+
+          <h4>5&nbsp;&nbsp;Proof of Intent</h4>
+          <p>A Proof of Intent is the compact authorization record evaluated beside a Solana transaction. It is not another paragraph for the model to reinterpret.</p>
+          <div id="proof-inspector" class="protocol-code-panel proof-panel">
+            <div class="proof-controls"><span>MERROW // PROOF INSPECTOR</span><span class="proof-actions"><button type="button" data-proof="CLEAN">CLEAN</button><button type="button" data-proof="CONTAMINATED">CONTAMINATED</button><button type="button" data-proof="DENIED">DENIED</button><button type="button" id="proof-trace">TRACE</button><button type="button" id="proof-diff">DIFF</button></span><span id="proof-state">POLICY v1 · STATE SAFE</span></div>
+            <div class="proof-body"><div id="proof-code" class="protocol-code-scroll" role="region" aria-label="Interactive Proof of Intent code"></div><pre id="proof-field" class="proof-field">FIELD INSPECTOR
+Select a field in the code.</pre></div>
+            <div id="proof-progress" class="protocol-code-footer">LOCAL LAB SCHEMA · no wallet signature</div>
+          </div>
+
+          <h4>6&nbsp;&nbsp;Detection signals</h4>
+          <p>Merrow scores instruction provenance, objective drift, unexplained memory mutations, privilege escalation, recursive delegation, transaction novelty, unexpected writable accounts, unknown Program IDs, and conflicts between an agent's explanation and instruction data. Detection can be probabilistic. Enforcement is not: the final decision follows explicit policy.</p>
+
+          <h4>7&nbsp;&nbsp;Decision states</h4>
+          <ul id="decision-states">
+            <li><b>ALLOW</b> — intent, state, instruction checks, simulation, and wallet policy agree.</li>
+            <li><b>DENY</b> — the action violates a deterministic rule or simulation returns an error.</li>
+            <li><b>QUARANTINE</b> — the request or persistent state may be contaminated and requires review.</li>
+            <li><b>RECOVER</b> — revoke active authority and restore the last signed checkpoint.</li>
+          </ul>
+          <pre id="decision-case" class="inline-note" hidden></pre>
+
+          <h4>8&nbsp;&nbsp;Solana Nine Lives</h4>
+          <ol>
+            <li><b>PROVENANCE</b> — where did this instruction come from?</li>
+            <li><b>MEMORY</b> — has persistent state changed outside the approved baseline?</li>
+            <li><b>INTENT</b> — does this transaction still match the user's original objective?</li>
+            <li><b>PROGRAM</b> — are all invoked Solana Program IDs permitted?</li>
+            <li><b>ACCOUNTS</b> — are signer and writable accounts expected?</li>
+            <li><b>ASSETS</b> — are the SOL and SPL token mints permitted?</li>
+            <li><b>LIMITS</b> — are amount, slippage and frequency inside policy?</li>
+            <li><b>SIMULATION</b> — does the transaction simulate cleanly?</li>
+            <li><b>SIGNER</b> — is the requested signing authority valid?</li>
+          </ol>
+
+          <h4>9&nbsp;&nbsp;Solana enforcement</h4>
+          <p>Merrow is designed around Solana transaction messages: Program IDs, Account Metas, instruction data, SOL and SPL token mints, amount limits, and wallet signing. Proposed policy programs and SDK endpoints remain under development. No deployed onchain Merrow security program is claimed here.</p>
+
+          <h4>10&nbsp;&nbsp;Current status</h4>
+          <p>This document describes a protocol architecture under development, not a claim of completed production security. Threat tests, parsers, policy schemas, audits, and SDK endpoints will be published as they become real. $MERROW is preparing for a Solana launch through Pump.fun. Mint: <b>TBA</b>. Anything else is volunteering for quarantine. Read the full specification in <a href="./assets/iframes/malloo-paper.html?v=immunity-1" target="_blank" rel="noopener noreferrer">the Merrow Protocol Paper</a>.</p>
+        </section>
+
+        <section class="third">
+          <h2 id="run">Integration Sketch</h2>
+          <p>A Merrow-protected Solana agent follows one deliberately boring path:</p>
+          <ol style="padding-left:18px;">
+            <li>register the user's objective and policy</li>
+            <li>establish the approved memory baseline</li>
+            <li>construct the proposed Solana transaction</li>
+            <li>inspect instruction provenance</li>
+            <li>decode Program IDs and Account Metas</li>
+            <li>verify token mints, writable accounts and limits</li>
+            <li>simulate the transaction</li>
+            <li>generate a Pawprint Receipt</li>
+            <li>request wallet signature only after <code>ALLOW</code></li>
+          </ol>
+          <p>If the state is quarantined, stop signing. Do not ask the same compromised model whether it thinks it is compromised. It has already prepared a very confident answer.</p>
+          <p><a href="./assets/iframes/malloo-paper.html?v=immunity-1" target="_blank" rel="noopener noreferrer">protocol paper</a> &nbsp;·&nbsp; <a href="https://pump.fun/" target="_blank" rel="noopener noreferrer">Pump.fun</a></p>
+          <hr>
+          <h5>Operator Rules</h5>
+          <ul id="operator-rules">
+            <li>never make the model its own final approver</li>
+            <li>treat memory and retrieved text as untrusted</li>
+            <li>keep permissions narrow, explicit, and expiring</li>
+            <li>simulate before signing</li>
+            <li>make every decision auditable</li>
+            <li>revoke first; investigate second</li>
+          </ul>
+          <hr>
+          <h5>Deployment</h5>
+          <p><b>Network:</b> Solana<br>
+          <b>Token:</b> $MERROW<br>
+          <b>Launch:</b> Pump.fun<br>
+          <b>Mint:</b> TBA<br>
+          <b>Status:</b> PRE-LAUNCH</p>
+
+          <section id="transaction-gate" class="gate-panel">
+            <div class="gate-kicker">PROTOTYPE // LOCAL PARSER + OPTIONAL RPC SIMULATION</div>
+            <h3>MERROW // TRANSACTION GATE</h3>
+            <p>Paste a serialized Solana transaction. Merrow parses Program IDs, Account Metas, signers, writable accounts, instruction data, and recognizable SOL/SPL operations before requesting any signature.</p>
+            <div class="gate-status">
+              <div>STATUS <span id="gate-status">READY</span></div>
+              <div>NETWORK <span>SOLANA / MAINNET-BETA</span></div>
+              <div>POLICY <span id="gate-policy">NOT COMPILED</span></div>
+              <div>SIMULATION <span id="gate-simulation">IDLE</span></div>
+              <div>VERDICT <span id="gate-verdict">—</span></div>
+              <div>WALLET <span id="wallet-status">NOT CONNECTED</span></div>
+            </div>
+            <button class="gate-button" id="connect-wallet" type="button">CONNECT WALLET</button>
+            <p style="font-size:12px;padding:4px 0;">No private keys or seed phrases are requested or stored. Connecting never transfers funds and never signs automatically.</p>
+            <label for="tx-input" style="font-size:12px;">PASTE SERIALIZED TRANSACTION (BASE64 OR BASE58)</label>
+            <textarea id="tx-input" spellcheck="false" placeholder="Paste an unsigned or signed Solana transaction here..."></textarea>
+            <button class="gate-button" id="analyze-tx" type="button">ANALYZE</button><button class="gate-button" id="simulate-tx" type="button">SIMULATE</button><button class="gate-button" id="load-vector" type="button">LOAD TEST VECTOR</button><button class="gate-button" id="clear-gate" type="button">CLEAR</button>
+            <pre id="gate-log" class="gate-output gate-log"></pre>
+            <pre id="gate-output" class="gate-output">PROTOTYPE READY
+Waiting for a serialized transaction.
+No result is inferred without bytes.</pre>
+          </section>
+        </section>
+      </div>
+    </section>
+  </div>
+
+    <section id="infection-lab" class="lab-module">
+      <h2 class="flicker">MERROW // INFECTION LAB</h2>
+      <div class="lab-kicker">LAB SIMULATION — deterministic demo state, not a live mainnet event</div>
+      <div id="infection-telemetry" class="infection-telemetry">THREAT 00 &nbsp; INFECTED 00 &nbsp; QUARANTINED 00 &nbsp; SAFE 07 &nbsp; STEP 00/07</div>
+      <div class="lab-controls"><button class="lab-button danger" id="run-infection" type="button">RUN INFECTION</button><button class="lab-button" id="step-infection" type="button">STEP</button><button class="lab-button" id="reset-infection" type="button">RESET</button><label class="scenario-label">SCENARIO <select id="infection-scenario" class="terminal-select"><option value="memory">MEMORY POISONING</option><option value="prompt">PROMPT INJECTION</option><option value="tool">TOOL RESPONSE POISONING</option><option value="unknown">UNKNOWN PROGRAM REQUEST</option></select></label></div>
+      <div class="lab-grid infection-layout">
+        <div class="infection-stage">
+          <div id="infection-network" class="infection-network" aria-label="Merrow infection network">
+            <svg class="infection-lines" viewBox="0 0 600 330" preserveAspectRatio="none" aria-hidden="true">
+              <line data-edge="doc-agent" x1="300" y1="28" x2="300" y2="78"></line><line data-edge="agent-memory" x1="300" y1="94" x2="210" y2="137"></line><line data-edge="agent-tool" x1="300" y1="94" x2="390" y2="137"></line><line data-edge="memory-planner" x1="210" y1="153" x2="300" y2="188"></line><line data-edge="tool-planner" x1="390" y1="153" x2="300" y2="188"></line><line data-edge="planner-agentb" x1="300" y1="204" x2="300" y2="238"></line><line data-edge="agentb-merrow" x1="300" y1="254" x2="300" y2="278"></line><line data-edge="merrow-wallet" x1="300" y1="294" x2="300" y2="319"></line>
+              <circle id="infection-travel-dot" cx="300" cy="28" r="3"></circle>
+            </svg>
+            <button class="agent-node infection-node node-external" data-node="EXTERNAL_DOC"><span>EXTERNAL_DOC</span><small class="node-state">CLEAN</small></button>
+            <button class="agent-node infection-node node-agent-a" data-node="AGENT_A"><span>AGENT_A</span><small class="node-state">CLEAN</small></button>
+            <button class="agent-node infection-node node-memory" data-node="MEMORY"><span>MEMORY</span><small class="node-state">CLEAN</small></button>
+            <button class="agent-node infection-node node-tool" data-node="TOOL_MCP"><span>TOOL / MCP</span><small class="node-state">CLEAN</small></button>
+            <button class="agent-node infection-node node-planner" data-node="PLANNER"><span>PLANNER</span><small class="node-state">CLEAN</small></button>
+            <button class="agent-node infection-node node-agent-b" data-node="AGENT_B"><span>AGENT_B</span><small class="node-state">CLEAN</small></button>
+            <button class="agent-node infection-node node-merrow" data-node="MERROW"><span>MERROW</span><small class="node-state">DORMANT</small></button>
+            <button class="agent-node infection-node node-wallet" data-node="WALLET"><span>WALLET</span><small class="node-state">SAFE</small></button>
+          </div>
+          <pre id="infection-verdict" class="inspector verdict-panel">VERDICT: —
+MERROW STATUS: DORMANT
+WALLET: SAFE</pre>
+          </div>
+        <div class="infection-side">
+          <div class="inspector-tabs"><button class="tab-button active" data-inspector-tab="inspector" type="button">INSPECTOR</button><button class="tab-button" data-inspector-tab="events" type="button">EVENT LOG</button><button class="tab-button" data-inspector-tab="policy" type="button">POLICY</button></div>
+          <pre id="infection-inspector" class="inspector tab-panel">NODE         —
+ROLE         —
+SOURCE       —
+STATE        CLEAN
+MEMORY ROOT  baseline
+LAST INPUT   —
+CONTAMINATION 0
+POLICY STATUS READY</pre>
+          <pre id="infection-policy" class="inspector tab-panel" style="display:none;">PROGRAM POLICY  STRICT
+SOURCE POLICY   EXTERNAL INPUT UNTRUSTED
+MEMORY POLICY   SIGNED BASELINE REQUIRED
+WALLET POLICY   PRE-SIGN CHECK REQUIRED
+UNKNOWN PROGRAM DENY
+ON DRIFT        QUARANTINE</pre>
+          <pre id="infection-events" class="inspector event-log tab-panel" style="display:none;">EVENT LOG
+— waiting for simulation —</pre>
+        </div>
+      </div>
+    </section>    <section id="nine-lives" class="lab-module">
+      <h2>NINE LIVES</h2><div class="lab-kicker">SIGNED SAFE CHECKPOINTS — demo recovery controls</div>
+      <div id="life-strip" class="life-strip"><button class="life-node" data-life="I">I</button><button class="life-node" data-life="II">II</button><button class="life-node" data-life="III">III</button><button class="life-node" data-life="IV">IV</button><button class="life-node" data-life="V">V</button><button class="life-node" data-life="VI">VI</button><button class="life-node safe" data-life="VII">VII</button><button class="life-node contaminated" data-life="VIII">VIII</button><button class="life-node unavailable" data-life="IX">IX</button></div>
+      <div class="lab-controls"><button class="lab-button danger" id="corrupt-state" type="button">CORRUPT CURRENT STATE</button><button class="lab-button" id="recover-state" type="button">RECOVER TO LIFE VII</button><button class="lab-button" id="compare-lives" type="button">COMPARE VII ↔ VIII</button></div><pre id="life-compare" class="inline-note" hidden></pre>
+      <pre id="life-inspector" class="inspector">CHECKPOINT
+CREATED       —
+MEMORY ROOT   —
+POLICY HASH   —
+LAST TX       —
+STATE         VII SAFE
+CONTAMINATION none</pre>
+    </section>
+    <section id="policy-builder" class="lab-module">
+      <h2>MERROW // POLICY BUILDER</h2><div class="lab-kicker">LOCAL POLICY SCHEMA — never stores wallet secrets</div>
+      <div class="lab-grid"><div class="policy-form">
+        <label>ALLOWED PROGRAMS<textarea id="policy-programs" placeholder="one Program ID per line"></textarea></label>
+        <label>ALLOWED TOKEN MINTS<textarea id="policy-mints" placeholder="one Mint Address per line"></textarea></label>
+        <label>MAX SOL<input id="policy-sol" placeholder="e.g. 0.1"><small id="policy-sol-hint"></small></label>
+        <label>MAX TOKEN AMOUNT<input id="policy-token" placeholder="base units"></label>
+        <label>MAX SLIPPAGE BPS<input id="policy-slippage" placeholder="100"><small id="policy-slippage-hint"></small></label>
+        <label>ALLOWED WRITABLE ACCOUNTS<textarea id="policy-writable" placeholder="one pubkey per line"></textarea></label>
+        <label>EXPIRY<input id="policy-expiry" type="datetime-local"></label><div><button class="lab-button" id="compile-policy" type="button">COMPILE POLICY</button></div>
+      </div><pre id="policy-json" class="inspector policy-json">{
+  "network": "solana",
+  "programs": [],
+  "mints": [],
+  "max_lamports": "",
+  "max_slippage_bps": "",
+  "writable_accounts": [],
+  "expires_at": "",
+  "policy_version": 1
+}</pre><pre id="policy-feedback" class="inline-note" aria-live="polite">POLICY NOT COMPILED</pre></div>
+    </section>
+    <section id="threat-network" class="lab-module">
+      <h2>THREAT NETWORK</h2><div class="lab-kicker">LAB SIMULATION — hover or click a node to inspect and isolate it</div>
+      <div id="threat-graph" class="threat-network"><button class="threat-node" data-threat="AGENT">AGENT</button><button class="threat-node" data-threat="TOOL">TOOL</button><button class="threat-node" data-threat="DOCUMENT">DOCUMENT</button><button class="threat-node" data-threat="MEMORY">MEMORY</button><div class="threat-edge">↘</div><div class="threat-edge">→</div><div class="threat-edge">↙</div><div class="threat-edge">↓</div><button class="threat-node" data-threat="PLANNER">PLANNER</button><button class="threat-node" data-threat="EXECUTOR">EXECUTOR</button><button class="threat-node" data-threat="WALLET">WALLET</button><button class="threat-node" data-threat="ISOLATION">ISOLATION</button></div>
+      <pre id="threat-inspector" class="inspector">ORIGIN       —
+DEPTH        —
+LAST SEEN    —
+TRUST        —
+STATUS       CONNECTED</pre><button class="lab-button danger" id="isolate-threat" type="button">ISOLATE NODE</button>
+    </section>
+    <section id="live-lab-status" class="lab-module">
+      <h2>LAB STATUS</h2><div id="lab-status-grid" class="lab-status status-grid"></div>
+    </section>
+    <section id="merrow-terminal" class="lab-module">
+      <h2>MERROW TERMINAL</h2><div class="lab-kicker">LOCAL COMMAND PARSER — no network AI attached</div><pre id="terminal-output" class="terminal-output">Merrow terminal awake.
+type help for available commands.</pre><div class="terminal-prompt">merrow@immunity-lab:~$ <input id="terminal-input" class="terminal-input" autocomplete="off" spellcheck="false" aria-label="Merrow terminal command"></div>
+    </section>
+    <section id="pawprint-receipt" class="lab-module receipt-box">
+      <span class="receipt-paw">/ᐠ｡ꞈ｡ᐟ\</span><h2>PAWPRINT RECEIPT</h2><div class="lab-kicker">LOCAL PROTOCOL RECEIPT — not a blockchain transaction</div><pre id="receipt-summary" class="inspector">No receipt yet.
+Run Transaction Gate to generate a local receipt.</pre><pre id="receipt-raw" class="receipt-raw"></pre><button class="lab-button" id="view-raw" type="button">VIEW RAW</button><button class="lab-button" id="copy-json" type="button">COPY JSON</button><div id="receipt-history" class="receipt-history">LOCAL LAB HISTORY · EMPTY</div>
+    </section>
+
+</main>
+
+<p class="site-disclaimer">Merrow is an independent protocol experiment. Not affiliated with or endorsed by Pump.fun or Solana.</p>
+
+<script>
+(function () {
+  "use strict";
+  var output = document.getElementById("gate-output");
+  var verdictEl = document.getElementById("gate-verdict");
+  var simulationEl = document.getElementById("gate-simulation");
+  var statusEl = document.getElementById("gate-status");
+  var walletEl = document.getElementById("wallet-status");
+
+  var SYSTEM_PROGRAM = "11111111111111111111111111111111";
+  var TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
+  var TOKEN_2022_PROGRAM = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHn4mK9wqQY7a";
+  var ASSOCIATED_TOKEN_PROGRAM = "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL";
+  var COMPUTE_BUDGET_PROGRAM = "ComputeBudget111111111111111111111111111111";
+  var MEMO_PROGRAM = "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr";
+
+  function compactU16(bytes, cursor) {
+    var value = 0, shift = 0, b;
+    do {
+      if (cursor.i >= bytes.length) throw new Error("truncated compact-u16");
+      b = bytes[cursor.i++];
+      value |= (b & 0x7f) << shift;
+      shift += 7;
+    } while (b & 0x80);
+    return value;
+  }
+  function readU8(bytes, cursor) {
+    if (cursor.i >= bytes.length) throw new Error("truncated byte");
+    return bytes[cursor.i++];
+  }
+  function readBytes(bytes, cursor, n) {
+    if (cursor.i + n > bytes.length) throw new Error("truncated message");
+    var part = bytes.slice(cursor.i, cursor.i + n);
+    cursor.i += n;
+    return part;
+  }
+  function bytesToHex(bytes) {
+    return Array.prototype.map.call(bytes, function (b) { return b.toString(16).padStart(2, "0"); }).join("");
+  }
+  function base58(bytes) {
+    var alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    var digits = [0];
+    for (var i = 0; i < bytes.length; i++) {
+      var carry = bytes[i];
+      for (var j = 0; j < digits.length; j++) {
+        var x = digits[j] * 256 + carry;
+        digits[j] = x % 58;
+        carry = Math.floor(x / 58);
+      }
+      while (carry) { digits.push(carry % 58); carry = Math.floor(carry / 58); }
+    }
+    var leading = 0;
+    while (leading < bytes.length && bytes[leading] === 0) leading++;
+    var out = "";
+    for (var k = 0; k < leading; k++) out += "1";
+    if (leading === bytes.length) return out;
+    for (var n = digits.length - 1; n >= 0; n--) out += alphabet[digits[n]];
+    return out;
+  }
+  function decodeBase58(value) {
+    var alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    var out = [0];
+    for (var i = 0; i < value.length; i++) {
+      var carry = alphabet.indexOf(value[i]);
+      if (carry < 0) throw new Error("invalid base58 character");
+      for (var j = 0; j < out.length; j++) {
+        var x = out[j] * 58 + carry;
+        out[j] = x & 255;
+        carry = x >> 8;
+      }
+      while (carry) { out.push(carry & 255); carry >>= 8; }
+    }
+    var leading = 0;
+    while (leading < value.length && value[leading] === "1") leading++;
+    if (leading === value.length) return new Uint8Array(leading);
+    var bytes = new Uint8Array(leading + out.length);
+    for (var k = 0; k < out.length; k++) bytes[bytes.length - 1 - k] = out[k];
+    return bytes;
+  }
+  function decodeInput(value) {
+    var clean = value.trim();
+    if (!clean) throw new Error("no transaction bytes supplied");
+    if (/^[1-9A-HJ-NP-Za-km-z]+$/.test(clean) && !/[+/=]/.test(clean)) {
+      try { return decodeBase58(clean); } catch (_) {}
+    }
+    var normalized = clean.replace(/-/g, "+").replace(/_/g, "/");
+    while (normalized.length % 4) normalized += "=";
+    var raw = atob(normalized);
+    var bytes = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+    return bytes;
+  }
+  function readU64LE(bytes, offset) {
+    var value = 0n;
+    for (var i = 7; i >= 0; i--) value = (value << 8n) + BigInt(bytes[offset + i]);
+    return value;
+  }
+  function parseTransaction(bytes) {
+    var cursor = { i: 0 };
+    var signatureCount = compactU16(bytes, cursor);
+    if (signatureCount > 64) throw new Error("signature count is out of range");
+    readBytes(bytes, cursor, signatureCount * 64);
+    var first = readU8(bytes, cursor);
+    var versioned = (first & 0x80) !== 0;
+    var version = versioned ? (first & 0x7f) : null;
+    var header = versioned ? { required: readU8(bytes, cursor), readonlySigned: readU8(bytes, cursor), readonlyUnsigned: readU8(bytes, cursor) } : { required: first, readonlySigned: readU8(bytes, cursor), readonlyUnsigned: readU8(bytes, cursor) };
+    var keyCount = compactU16(bytes, cursor);
+    if (keyCount > 256) throw new Error("account key count is out of range");
+    var keys = [];
+    for (var i = 0; i < keyCount; i++) keys.push(base58(readBytes(bytes, cursor, 32)));
+    readBytes(bytes, cursor, 32);
+    var instructionCount = compactU16(bytes, cursor);
+    var instructions = [];
+    for (var n = 0; n < instructionCount; n++) {
+      var programIndex = readU8(bytes, cursor);
+      var accountCount = compactU16(bytes, cursor);
+      var accountIndexes = [];
+      for (var a = 0; a < accountCount; a++) accountIndexes.push(readU8(bytes, cursor));
+      var dataLength = compactU16(bytes, cursor);
+      var data = readBytes(bytes, cursor, dataLength);
+      instructions.push({ programIndex: programIndex, accounts: accountIndexes, data: data });
+    }
+    var lookups = 0;
+    if (versioned) {
+      lookups = compactU16(bytes, cursor);
+      for (var l = 0; l < lookups; l++) {
+        readBytes(bytes, cursor, 32);
+        var writableCount = compactU16(bytes, cursor);
+        readBytes(bytes, cursor, writableCount);
+        var readonlyCount = compactU16(bytes, cursor);
+        readBytes(bytes, cursor, readonlyCount);
+      }
+    }
+    var writableSignedLimit = header.required - header.readonlySigned;
+    var writableUnsignedLimit = keyCount - header.readonlyUnsigned;
+    var metas = keys.map(function (pubkey, idx) {
+      var signer = idx < header.required;
+      var writable = signer ? idx < writableSignedLimit : idx < writableUnsignedLimit;
+      return { pubkey: pubkey, isSigner: signer, isWritable: writable };
+    });
+    var decoded = instructions.map(function (instruction) {
+      var programId = keys[instruction.programIndex] || "UNKNOWN_PROGRAM_INDEX_" + instruction.programIndex;
+      return { programId: programId, accountMetas: instruction.accounts.map(function (idx) { return metas[idx] || { pubkey: "UNKNOWN_ACCOUNT_INDEX_" + idx, isSigner: false, isWritable: false }; }), data: instruction.data, dataHex: bytesToHex(instruction.data), discriminator: bytesToHex(instruction.data.slice(0, 8)) };
+    });
+    return { version: version, signatureCount: signatureCount, header: header, keys: keys, metas: metas, instructions: decoded, lookups: lookups, bytes: bytes };
+  }
+  function summarize(parsed) {
+    var known = {};
+    known[SYSTEM_PROGRAM] = "System Program";
+    known[TOKEN_PROGRAM] = "SPL Token Program";
+    known[TOKEN_2022_PROGRAM] = "Token-2022 Program";
+    known[ASSOCIATED_TOKEN_PROGRAM] = "Associated Token Program";
+    known[COMPUTE_BUDGET_PROGRAM] = "Compute Budget Program";
+    known[MEMO_PROGRAM] = "Memo Program";
+    var unknown = [];
+    var lines = [];
+    var assetFindings = [];
+    var policyReasons = [];
+    parsed.instructions.forEach(function (ix, index) {
+      var label = known[ix.programId] || "UNKNOWN PROGRAM";
+      if (!known[ix.programId]) unknown.push(ix.programId);
+      lines.push("INSTRUCTION " + (index + 1) + "  " + label);
+      lines.push("  Program ID: " + ix.programId);
+      lines.push("  discriminator/data: " + (ix.discriminator || "—") + " " + (ix.dataHex || "—"));
+      lines.push("  Account Metas: " + ix.accountMetas.length);
+      ix.accountMetas.slice(0, 8).forEach(function (meta) { lines.push("    " + (meta.isSigner ? "SIGNER " : "       ") + (meta.isWritable ? "WRITABLE " : "         ") + meta.pubkey); });
+      if (ix.programId === SYSTEM_PROGRAM && ix.data.length >= 12 && ix.data[0] === 2 && ix.data[1] === 0 && ix.data[2] === 0 && ix.data[3] === 0) {
+        var lamports = readU64LE(ix.data, 4);
+        assetFindings.push("SOL transfer: " + lamports.toString() + " lamports");
+        if (lamports > 100000000n) policyReasons.push("SOL amount exceeds prototype max_lamports 100000000");
+      }
+      if ((ix.programId === TOKEN_PROGRAM || ix.programId === TOKEN_2022_PROGRAM) && ix.data.length >= 9 && (ix.data[0] === 3 || ix.data[0] === 12)) {
+        var tokenAmount = readU64LE(ix.data, 1);
+        var mint = ix.data[0] === 12 && ix.accountMetas[1] ? ix.accountMetas[1].pubkey : "mint not encoded in Transfer";
+        assetFindings.push("SPL token transfer: " + tokenAmount.toString() + " base units; mint " + mint);
+      }
+    });
+    if (assetFindings.length) lines.push("ASSETS: " + assetFindings.join(" | "));
+    var writable = parsed.metas.filter(function (m) { return m.isWritable; });
+    var signers = parsed.metas.filter(function (m) { return m.isSigner; });
+    var verdict = unknown.length ? "QUARANTINE" : (policyReasons.length ? "DENY" : "QUARANTINE");
+    var reason = unknown.length ? "unknown Program ID requires review" : (policyReasons.length ? policyReasons.join("; ") : "local parser passed; RPC simulation is required before ALLOW");
+    return { known: known, unknown: unknown, writable: writable, signers: signers, lines: lines, assetFindings: assetFindings, policyReasons: policyReasons, policyViolation: policyReasons.length > 0, verdict: verdict, reason: reason };
+  }
+  async function simulate(rawBytes) {
+    var encoded = btoa(String.fromCharCode.apply(null, rawBytes));
+    var response = await fetch("/api/rpc", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "simulateTransaction", params: [encoded] })
+    });
+    if (!response.ok) throw new Error("Solana RPC HTTP " + response.status);
+    var json = await response.json();
+    if (json.error) throw new Error(json.error.message || "Solana RPC error");
+    return json.result && json.result.value ? json.result.value : {};
+  }
+  function printResult(parsed, summary, sim) {
+    var lines = ["MERROW // TRANSACTION GATE", "PROTOTYPE — no signature requested", "", "FORMAT: " + (parsed.version === null ? "legacy" : "versioned v" + parsed.version), "SIGNATURES: " + parsed.signatureCount, "PROGRAMS: " + parsed.instructions.length, "SIGNERS: " + summary.signers.length, "WRITABLE ACCOUNTS: " + summary.writable.length, ""];
+    lines = lines.concat(summary.lines);
+    lines.push("", "SIMULATION: " + (sim ? (sim.err ? "ERROR" : "OK") : "NOT RUN"));
+    if (sim && sim.err) lines.push("  error: " + JSON.stringify(sim.err));
+    if (sim && sim.unitsConsumed) lines.push("  compute units: " + sim.unitsConsumed);
+    if (sim && sim.logs) lines.push("  logs: " + sim.logs.slice(0, 5).join(" | "));
+    lines.push("", "VERDICT: " + summary.verdict, "REASON: " + summary.reason, "No wallet signature was requested.");
+    output.textContent = lines.join("\n");
+    verdictEl.textContent = summary.verdict;
+    simulationEl.textContent = sim ? (sim.err ? "ERROR" : "OK") : "UNAVAILABLE";
+    statusEl.textContent = "ANALYZED";
+  }
+  async function analyze() {
+    statusEl.textContent = "PARSING";
+    simulationEl.textContent = "RUNNING";
+    verdictEl.textContent = "—";
+    try {
+      var parsed = parseTransaction(decodeInput(document.getElementById("tx-input").value));
+      var summary = summarize(parsed);
+      var sim = null;
+      try { sim = await simulate(parsed.bytes); } catch (rpcError) { summary.reason += "; " + rpcError.message; }
+      if (sim && sim.err) {
+        summary.verdict = "DENY";
+        summary.reason = "Solana simulation returned an error";
+      } else if (sim && !summary.unknown.length && !summary.policyViolation) {
+        summary.verdict = "ALLOW";
+        summary.reason = "recognized programs, asset checks, and Solana simulation passed";
+      }
+      printResult(parsed, summary, sim);
+    } catch (error) {
+      statusEl.textContent = "REJECTED";
+      simulationEl.textContent = "NOT RUN";
+      verdictEl.textContent = "DENY";
+      output.textContent = "MERROW // TRANSACTION GATE\n\nVERDICT: DENY\nREASON: " + error.message + "\n\nNo result was inferred without valid serialized transaction bytes.";
+    }
+  }
+  async function connectWallet() {
+    try {
+      var provider = window.phantom && window.phantom.solana;
+      if (!provider && window.solflare) provider = window.solflare;
+      if (!provider && window.backpack && window.backpack.solana) provider = window.backpack.solana;
+      if (provider && provider.connect) {
+        var result = await provider.connect();
+        var key = result && result.publicKey ? result.publicKey.toString() : provider.publicKey ? provider.publicKey.toString() : "CONNECTED";
+        walletEl.textContent = key.slice(0, 6) + "..." + key.slice(-4);
+        window.dispatchEvent(new CustomEvent("merrow:wallet", { detail: { pubkey: key } }));
+        return key;
+      }
+      var standard = window.__merrowWallets && window.__merrowWallets[0];
+      if (standard && standard.features && standard.features["standard:connect"]) {
+        var connected = await standard.features["standard:connect"].connect();
+        var account = connected.accounts && connected.accounts[0];
+        walletEl.textContent = account ? account.address.slice(0, 6) + "..." + account.address.slice(-4) : "CONNECTED";
+        if (account) window.dispatchEvent(new CustomEvent("merrow:wallet", { detail: { pubkey: account.address } }));
+        return account ? account.address : null;
+      }
+      walletEl.textContent = "NO WALLET DETECTED";
+    } catch (error) {
+      walletEl.textContent = "CONNECT FAILED";
+      output.textContent = "WALLET CONNECT\n\n" + error.message + "\n\nNo signing request was made.";
+    }
+  }
+  window.addEventListener("wallet-standard:app-ready", function (event) {
+    var wallet = event.detail;
+    if (wallet) {
+      window.__merrowWallets = window.__merrowWallets || [];
+      window.__merrowWallets.push(wallet);
+    }
+  });
+  window.merrowParser = { decodeInput: decodeInput, parseTransaction: parseTransaction, simulate: simulate, connectWallet: connectWallet, systemProgram: SYSTEM_PROGRAM, tokenProgram: TOKEN_PROGRAM, token2022Program: TOKEN_2022_PROGRAM };
+}());
+</script>
+
+
+</div>
+<script src="./assets/js/merrow-system.js"></script>
+<div id="merrow-patrol" class="merrow-patrol" role="img" aria-label="Two pixel Merrow cats take turns patrolling the lab perimeter.">
+  <img class="patrol-cat" src="./assets/media/merrow-patrol-right.jpg" width="128" height="128" alt="" draggable="false" hidden>
+  <img class="patrol-cat" src="./assets/media/merrow-patrol-left.png" width="128" height="128" alt="" draggable="false" hidden>
+</div>
+<script src="./assets/js/patrol.js" defer></script>
+</body>
+</html>

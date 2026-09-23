@@ -1,0 +1,19 @@
+name: Feature request
+description: Propose a protocol or tooling improvement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and trust boundary
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior and evidence
+    validations:
+      required: true
+  - type: textarea
+    id: limits
+    attributes:
+      label: Limitations or risks

@@ -1,0 +1,56 @@
+/* Small stateful controls in the existing terminal palette. */
+.header-wallet{margin-left:18px;color:#a4ca92;font:11px tamzen,monospace}
+.header-wallet[hidden]{display:none}
+.proof-controls{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:5px 9px;border-bottom:1px dashed #2a3a24;color:#a4ca92;font:10px/1.4 tamzen,monospace;letter-spacing:.3px}
+.proof-controls>span:last-child{margin-left:auto;color:#6e935c}
+.proof-actions{display:inline-flex;flex-wrap:wrap;gap:3px}
+.proof-actions button,.receipt-history button{background:#050705;border:1px solid #527b47;color:#a4ca92;font:10px tamzen,monospace;padding:3px 5px;cursor:crosshair}
+.proof-actions button:hover,.proof-actions button.active,.receipt-history button:hover,.receipt-history button.active{background:#25351f;color:#d6e4cf}
+.proof-actions button.danger:hover,.proof-actions button.danger.active{border-color:#9370ba;background:#281632}
+.proof-body{display:grid;grid-template-columns:minmax(0,1fr) minmax(185px,.45fr);gap:0}
+#proof-code{height:340px;border-right:1px dashed #2a3a24;font:11px/1.48 tamzen,monospace;color:#8fac79}
+.proof-line{display:block;white-space:pre;padding:0 10px;min-width:max-content}
+.proof-line[data-field]{cursor:crosshair}
+.proof-line[data-field]:hover,.proof-line.selected,.proof-line.tracing{background:#1b2a16;color:#d6e4cf}
+.proof-line.mutation,.proof-line.mutation:hover{color:#d6b9f5;background:#1b1124}
+.proof-diff-text{margin:0;padding:12px;color:#d6b9f5;font:11px/1.55 tamzen,monospace;white-space:pre}
+.proof-field{margin:0;padding:9px;color:#a4ca92;background:#080b07;white-space:pre-wrap;min-height:110px;font:10px/1.5 tamzen,monospace}
+.proof-panel .protocol-code-footer{min-height:20px}
+.inline-note{background:#0a0d08;border:1px dashed #2a3a24;color:#a4ca92;padding:7px 9px;white-space:pre-wrap;font:10px/1.45 tamzen,monospace}
+.inline-note[hidden]{display:none}
+#protocol-components b,#decision-states b{cursor:crosshair;border-bottom:1px dotted #527b47}
+#protocol-components b:hover,#decision-states b:hover{color:#d6e4cf}
+.component-note{margin:4px 0 6px 8px}
+#operator-rules li[data-why]{cursor:help}
+#operator-rules li[data-why]:hover{color:#d6e4cf}
+#operator-rules li[data-why]:hover:after{content:"  WHY? " attr(data-why);color:#a4ca92;font:10px tamzen,monospace}
+nav .menu a.section-active:before{content:"> ";color:#d6e4cf}
+nav .menu a.basic-1:hover{color:#d6e4cf}
+nav .menu a.basic-1:hover:after{content:"_";animation:merrowCursor 1s steps(2,end) infinite}
+@keyframes merrowCursor{50%{opacity:0}}
+.lab-button.running,.gate-button.running{background:#25351f;color:#d6e4cf}
+.lab-button.success,.gate-button.success{border-color:#d6e4cf;color:#d6e4cf}
+.lab-button.error,.gate-button.error{border-color:#9370ba;color:#d6b9f5}
+.gate-status .danger-status,.status-grid .danger-status{color:#d6b9f5}
+.status-grid [data-target]{cursor:crosshair;border-bottom:1px dotted transparent}
+.status-grid [data-target]:hover{border-bottom-color:#6e935c;color:#a4ca92}
+.status-grid [data-target]:hover:before{content:"> "}
+.threat-node.selected{border-color:#d6e4cf;color:#d6e4cf}
+.threat-network{position:relative}
+.threat-network .threat-node{position:relative;z-index:2}
+#threat-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+#threat-lines line{stroke:#527b47;stroke-width:1;stroke-dasharray:3 3;opacity:.75}
+#threat-lines line.infected{stroke:#a679cd;opacity:1}
+.threat-edge{opacity:.2}
+.threat-node.exposed{border-color:#d6e4cf}
+.threat-edge.broken{opacity:.23;text-decoration:line-through}
+.threat-edge.infected{color:#a679cd}
+.life-node.selected{outline:1px solid #d6e4cf;outline-offset:-2px}
+.policy-form small{display:block;color:#a4ca92;margin-top:3px;min-height:12px}
+.policy-form .field-error{border-color:#9370ba;color:#d6b9f5}
+.receipt-history{border-top:1px dashed #2a3a24;margin-top:8px;padding-top:7px;color:#6e935c;font:10px tamzen,monospace}
+.receipt-history button{margin-left:4px}
+.agent-node:focus-visible,.threat-node:focus-visible,.life-node:focus-visible,.lab-button:focus-visible,.gate-button:focus-visible{outline:1px solid #d6e4cf}
+a[target="_blank"]:hover{color:#d6e4cf}
+@media(max-width:700px){.proof-body{grid-template-columns:1fr}.proof-field{border-top:1px dashed #2a3a24;min-height:75px}#proof-code{border-right:0}.proof-controls>span:last-child{margin-left:0}}
+@media(prefers-reduced-motion:reduce){nav .menu a.basic-1:hover:after{animation:none}}
