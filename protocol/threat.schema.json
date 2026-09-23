@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.merrow.lol/protocol/threat.schema.json",
+  "title": "MERROW lab threat event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source", "node", "trust", "depth", "state", "contamination", "timestamp", "action"],
+  "properties": {
+    "source": { "type": "string", "minLength": 1 },
+    "node": { "type": "string", "minLength": 1 },
+    "trust": { "enum": ["UNTRUSTED", "VERIFIED", "UNKNOWN"] },
+    "depth": { "type": "integer", "minimum": 0 },
+    "state": { "enum": ["CLEAN", "EXPOSED", "CONTAMINATED", "QUARANTINED"] },
+    "contamination": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "action": { "enum": ["OBSERVE", "BLOCK", "QUARANTINE", "RECOVER"] }
+  }
+}
+

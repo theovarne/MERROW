@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.merrow.lol/protocol/policy.schema.json",
+  "title": "MERROW experimental policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["network", "version", "program_ids", "allowed_mints", "writable_accounts", "max_lamports", "max_slippage_bps", "expiry", "simulation_required"],
+  "properties": {
+    "network": { "const": "solana" },
+    "version": { "type": "integer", "minimum": 1 },
+    "objective_hash": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+    "state_root": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+    "program_ids": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/pubkey" } },
+    "allowed_mints": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/pubkey" } },
+    "writable_accounts": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/pubkey" } },
+    "max_lamports": { "type": "string", "pattern": "^(0|[1-9][0-9]*)$" },
+    "max_slippage_bps": { "type": "integer", "minimum": 0, "maximum": 10000 },
+    "expiry": { "type": "string", "format": "date-time" },
+    "simulation_required": { "type": "boolean" },
+    "status": { "enum": ["ACTIVE", "QUARANTINED"] }
+  },
+  "$defs": {
+    "pubkey": { "type": "string", "minLength": 32, "maxLength": 44, "pattern": "^[1-9A-HJ-NP-Za-km-z]+$" }
+  }
+}
+

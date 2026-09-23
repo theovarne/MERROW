@@ -1,0 +1,14 @@
+{
+  "receipt_id": "example-allow-001",
+  "timestamp": "2026-09-23T00:00:00Z",
+  "policy_hash": null,
+  "objective_hash": null,
+  "state_root": null,
+  "program_ids": ["11111111111111111111111111111111"],
+  "accounts": [{ "pubkey": "11111111111111111111111111111111", "signer": false, "writable": true }],
+  "simulation": { "status": "PASS" },
+  "verdict": "ALLOW",
+  "reason": "Illustrative reference decision; not a live transaction",
+  "checkpoint": "VII",
+  "scope": "LOCAL_PROTOCOL_RECEIPT"
+}

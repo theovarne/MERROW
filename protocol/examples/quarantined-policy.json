@@ -1,0 +1,12 @@
+{
+  "network": "solana",
+  "version": 1,
+  "program_ids": ["11111111111111111111111111111111"],
+  "allowed_mints": [],
+  "writable_accounts": [],
+  "max_lamports": "0",
+  "max_slippage_bps": 0,
+  "expiry": "2030-01-01T00:00:00Z",
+  "simulation_required": true,
+  "status": "QUARANTINED"
+}

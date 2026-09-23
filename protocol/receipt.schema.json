@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.merrow.lol/protocol/receipt.schema.json",
+  "title": "MERROW local Pawprint receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["receipt_id", "timestamp", "policy_hash", "objective_hash", "state_root", "program_ids", "accounts", "simulation", "verdict", "checkpoint", "scope"],
+  "properties": {
+    "receipt_id": { "type": "string", "minLength": 1 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "policy_hash": { "type": ["string", "null"] },
+    "objective_hash": { "type": ["string", "null"] },
+    "state_root": { "type": ["string", "null"] },
+    "program_ids": { "type": "array", "items": { "type": "string" } },
+    "accounts": { "type": "array", "items": { "type": "object", "required": ["pubkey", "signer", "writable"], "additionalProperties": false, "properties": { "pubkey": { "type": "string" }, "signer": { "type": "boolean" }, "writable": { "type": "boolean" } } } },
+    "simulation": { "type": "object", "required": ["status"], "additionalProperties": true, "properties": { "status": { "enum": ["NOT_RUN", "PASS", "FAIL", "UNAVAILABLE"] } } },
+    "verdict": { "enum": ["ALLOW", "DENY", "QUARANTINE"] },
+    "reason": { "type": "string" },
+    "checkpoint": { "type": ["string", "null"] },
+    "scope": { "const": "LOCAL_PROTOCOL_RECEIPT" }
+  }
+}
+

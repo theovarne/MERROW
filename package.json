@@ -1,0 +1,19 @@
+{
+  "name": "merrow-protocol",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Experimental pre-sign security reference code for autonomous agents on Solana",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "lint": "node scripts/lint.mjs",
+    "test": "node --test",
+    "validate:schemas": "node scripts/validate-schemas.mjs",
+    "check": "npm run lint && npm run validate:schemas && npm test"
+  },
+  "devDependencies": {
+    "ajv": "8.17.1",
+    "ajv-formats": "3.0.1"
+  }
+}
+
