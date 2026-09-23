@@ -3,6 +3,7 @@
   var $ = function (id) { return document.getElementById(id); };
   var parser = window.merrowParser;
   var SYSTEM = parser.systemProgram;
+  var MERROW_MINT = "PDb1Gy71LFNwKKuSXmtKp4jxuPZgp2Xne4gohqkpump";
   var names = ["AGENT", "TOOL", "DOCUMENT", "MEMORY", "PLANNER", "EXECUTOR", "WALLET", "ISOLATION"];
   var routes = {
     memory: ["EXTERNAL_DOC", "AGENT_A", "MEMORY", "PLANNER", "AGENT_B", "MERROW"],
@@ -109,13 +110,13 @@
       ["CHECKPOINT", state.checkpoint.current + " " + state.checkpoint.state, "nine-lives"],
       ["QUARANTINE", state.lab.quarantine, "threat-network"],
       ["THREAT", String(state.threat.level).padStart(2, "0"), "threat-network"],
-      ["MINT", "TBA", "aboutme"]
+      ["MINT", short(MERROW_MINT), "aboutme"]
     ];
     var grid = $("lab-status-grid"); grid.textContent = "";
     items.forEach(function (item) {
       var row = document.createElement("div"), value = document.createElement("span");
       row.dataset.target = item[2]; row.tabIndex = 0; row.setAttribute("role", "link");
-      row.append(item[0] + " "); value.textContent = item[1]; row.appendChild(value);
+      row.append(item[0] + " "); value.textContent = item[1]; if (item[0] === "MINT") value.title = MERROW_MINT; row.appendChild(value);
       if (/QUARANTINE|DENY|OFFLINE/.test(item[1])) value.classList.add("danger-status");
       row.addEventListener("click", function () { $(item[2]).scrollIntoView({ behavior: "smooth", block: "start" }); });
       row.addEventListener("keydown", function (e) { if (e.key === "Enter") row.click(); });

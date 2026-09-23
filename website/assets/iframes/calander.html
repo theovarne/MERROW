@@ -14,7 +14,7 @@
     .phase ul { margin: 0; padding: 8px 8px 10px 22px; }
     .phase li { color: #D6E4CF; font-size: 12px; line-height: 1.6; }
     .phase li::marker { color: #6e935c; content: "> "; }
-    .foot { color: #6e935c; font-size: 10px; text-align: center; padding: 6px 0 0; } .phase-note { display:none; color:#a4ca92; font-size:10px; border-top:1px dashed #2a3a24; padding:6px 8px; } .phase.open .phase-note { display:block; } .phase { cursor:crosshair; }
+    .foot { color: #6e935c; font-size: 10px; text-align: center; padding: 6px 0 0; overflow-wrap:anywhere; } .phase-note { display:none; color:#a4ca92; font-size:10px; border-top:1px dashed #2a3a24; padding:6px 8px; } .phase.open .phase-note { display:block; } .phase { cursor:crosshair; }
   </style>
 </head>
 <body>
@@ -22,7 +22,7 @@
   <div class="roadmap">
     <div class="phase" data-note="implementation note: policy schema and signed checkpoint work remains under development.">
       <div class="phase-head"><span>Phase 01 · Wake</span><span class="tag">now</span></div>
-      <ul><li>migrate the protocol to Solana</li><li>prepare $MERROW launch on Pump.fun</li><li>publish the verified Mint Address after launch</li><li>establish the first signed policy schema</li></ul><div class="phase-note"></div>
+      <ul><li>migrate the protocol to Solana</li><li>launch $MERROW on Pump.fun — done</li><li>publish the verified Mint Address — done</li><li>establish the first signed policy schema</li></ul><div class="phase-note"></div>
     </div>
     <div class="phase" data-note="implementation note: policy schema and signed checkpoint work remains under development.">
       <div class="phase-head"><span>Phase 02 · Observe</span><span class="tag">next</span></div>
@@ -36,7 +36,7 @@
       <div class="phase-head"><span>Phase 04 · Immune</span><span class="tag">later</span></div>
       <ul><li>publish the Merrow policy SDK</li><li>open the threat attestation registry</li><li>allow agents to share signed defenses</li><li>make every new host harder to infect</li></ul><div class="phase-note"></div>
     </div>
-    <div class="foot">roadmap subject to Merrow's judgment · Solana · $MERROW Mint: TBA</div>
+    <div class="foot">roadmap subject to Merrow's judgment · Solana · $MERROW Mint: PDb1Gy71LFNwKKuSXmtKp4jxuPZgp2Xne4gohqkpump</div>
   </div>
   <script>
     document.querySelectorAll(".phase").forEach(function(phase){phase.addEventListener("click",function(){phase.classList.toggle("open");var note=phase.querySelector(".phase-note");if(note)note.textContent=phase.dataset.note;fitRoadmap();});}); function fitRoadmap(){ if(window.frameElement){ window.frameElement.style.height=document.documentElement.scrollHeight+'px'; } }
