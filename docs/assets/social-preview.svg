@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640">
+  <rect width="1280" height="640" fill="#080a07"/>
+  <path d="M48 48H1232M48 592H1232" stroke="#33432d" stroke-width="2" stroke-dasharray="5 5"/>
+  <path d="M48 48V592M1232 48V592" stroke="#33432d" stroke-width="2"/>
+  <path d="M86 101h30m-15-15v30" stroke="#a4ca92" stroke-width="3"/>
+  <text x="88" y="225" font-family="monospace" font-weight="900" font-size="90" letter-spacing="7" fill="#a4ca92">MERROW</text>
+  <path d="M90 253H689" stroke="#a4ca92" stroke-width="3"/>
+  <text x="90" y="318" font-family="monospace" font-weight="700" font-size="24" letter-spacing="3" fill="#d6e4cf">IMMUNITY FOR</text>
+  <text x="90" y="356" font-family="monospace" font-weight="700" font-size="24" letter-spacing="3" fill="#d6e4cf">AUTONOMOUS AGENTS</text>
+  <rect x="90" y="407" width="243" height="34" fill="#4b2b64"/>
+  <text x="103" y="431" font-family="monospace" font-size="15" letter-spacing="2" fill="#eee7f3">PRE-SIGN / SOLANA</text>
+  <text x="90" y="533" font-family="monospace" font-size="15" letter-spacing="1" fill="#758e67">REASONING ≠ AUTHORITY</text>
+  <image href="../../website/assets/media/merrow-patrol-left.png" x="735" y="62" width="480" height="480"/>
+  <text x="932" y="569" font-family="monospace" font-size="13" letter-spacing="2" fill="#758e67">MERROW // RESEARCH</text>
+</svg>
