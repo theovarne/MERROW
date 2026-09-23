@@ -1,0 +1,17 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.vercel/
+website/.vercel/
+*.pem
+*.key
+*.p12
+*.pfx
+*secret*.json
+*private*key*
+coverage/
+test-results/
+*.log
+
+
